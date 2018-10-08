@@ -85,6 +85,7 @@ void CreatPolyn(polynomial &P, int m)
 {
 	polynomial h;	ElemType e;		int i;
 	InitList(P);
+	printf("请输入%d个项的系数和指数：\n",m);
 	h = P;
 	e.coef = 0.0;
 	e.expn = -1;
@@ -118,10 +119,19 @@ Status ListEmpty(LinkList L)
 Status Append(LinkList &L, LinkList s)
 {	//将指针s(s->data为第一个数据元素)所指(彼此以指针相链,以NULL结尾)的
     //一串结点链接在线性链表L的最后一个结点之后
-    LinkList p = L;
+    LinkList p = L, q = s,newnode;
 	while (p->next)
 		p = p->next;
-	p->next = s;
+	while (q)
+	{
+		s = s->next;
+		MakeNode(newnode,q->data);
+		newnode->next = NULL;
+		q = s;
+		p->next = newnode;
+		p = p->next;
+	}
+
     return 1;
 }
 
@@ -184,12 +194,36 @@ void AddPolyn(polynomial &Pa, polynomial &Pb)
 
 }//AddPolyn
 //运行PPT上例子准确无误
+
+void Print(polynomial P)
+{
+	polynomial p = P->next,q;
+	while (p->next)
+	{
+		if(p->data.coef > 0)
+			if(p->data.expn)
+				printf("(%.1f)x^%d+",p->data.coef,p->data.expn);
+			else
+				printf("(%.1f)+",p->data.coef);
+		p = p->next;
+	}
+	printf("(%.1f)x^%d\n",p->data.coef,p->data.expn);
+}
+
 int main(void)
 {
 	polynomial P1,P2;
 	CreatPolyn(P1, 4);
+	Print(P1);
 	CreatPolyn(P2, 3);
+	Print(P2);
 	AddPolyn(P1, P2);
+	printf("相加结果为：\n");
+	Print(P1);
+
+	DestroyList(P1);
+
+
 
 	return 0;
 }
