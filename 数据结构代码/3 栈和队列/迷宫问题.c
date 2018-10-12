@@ -118,6 +118,7 @@ int Pass(PosType pos)
 int FootPrint(PosType pos,int curstep)
 {
 	MazeMap[pos.Y][pos.X] = curstep;
+	return 0;
 }
 
 PosType NextPos(PosType pos,int di)
@@ -147,6 +148,7 @@ int MarkPrint(PosType seat)
 {
 	printf("(%d,%d)×ß²»Í¨\n",seat.Y,seat.X);
 	MazeMap[seat.Y][seat.X] = 1000;
+	return 0;
 }
 
 void PrintStep()
