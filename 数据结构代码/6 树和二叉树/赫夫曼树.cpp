@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-//赫夫曼树和赫夫曼编码的存储表示！！！！default
+#define	INFINITY INT_MAX	//整型的最大值∞
+//赫夫曼树和赫夫曼编码的存储表示
 typedef struct
 {
 	unsigned int weight;	//权重
@@ -13,7 +13,7 @@ typedef char ** HuffmanCode;//动态分配数组存储赫夫曼编码表
 //选出无父结点，并且权值最小的两个结点，赋值给s1，s2 
 void Select(HuffmanTree &HT,int x,int &s1,int &s2)
 {
-	int i = 1,min1 = HT[1].weight,min2 = HT[1].weight;
+	int i = 1,min1 = INFINITY,min2 = INFINITY;
 	for(i = 1;i <= x; i++)//找最小 
 		if(HT[i].weight < min1 && HT[i].parent == 0)
 		{
@@ -80,7 +80,7 @@ void HuffmanCoding(HuffmanTree &HT,HuffmanCode &HC,int *w,int n)
 				cd[--start] = '1';
 			HC[i] = (char *)malloc((n - start) * sizeof(char));	//为第i个字符编码分配空间
 			strcpy(HC[i], &cd[start]);
-			printf("%d的赫夫曼编码为：%s\n",HT[i].weight,HC[i]);
+			//printf("%d的赫夫曼编码为：%s\n",HT[i].weight,HC[i]);
 		}
 	}
 	free(cd);	//释放工作空间
