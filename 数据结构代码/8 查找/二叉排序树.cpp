@@ -34,47 +34,8 @@ typedef struct BiTNode
 	struct BiTNode *lchild ,*rchild;	//左右孩子指针
 }BiTNode,*BiTree;
 
-//创建二叉树的原始数据
-KeyType arr1[] = {45,12,3,0,0,37,24,0,0,40,0,0,53,50,0,0,99,61,0,90,78,0,0,0,0};
-KeyType arr2[] = {'A','B','E','\0','L','\0','\0','\0','D','H','M','\0','\0','I','\0','\0','J','\0','\0'};
-KeyType arr3[] = {'-','+','a','\0','\0','*','b','\0','\0','-','c','\0','\0','d','\0','\0','/','e','\0','\0','f','\0','\0'};
-
-int arr_i = 0;
 
 
-
-//按照先序遍历创建二叉树
-int CreateBiTree(BiTree &T)
-{
-	KeyType ch;
-	ch = arr1[arr_i++];
-	if(ch == 0)
-	{
-		T = NULL;
-	}
-	else
-	{
-		if(!(T = (BiTNode *)malloc(sizeof(BiTNode))))
-			exit(-1);
-		T->data.key = ch;			//生成根节点
-		T->pos = 32;
-		CreateBiTree(T->lchild);//构造左子树
-		CreateBiTree(T->rchild);//构造右子树
-	}
-	return 1;
-}
-//调用方式：CreatePos(T,T,p,0);
-void CreatePos(BiTree T,BiTree f,BiTree &p,int flag)//flag == 1:右子树   flag == -1：左子树 
-{
-	if(T)						//查找不成功
-	{
-		//T->pos = f->pos + (flag * f->pos / 2);//间隔计算不对
-		T->pos = flag * f->data.key;
-		CreatePos(T->lchild,T,p,-1);
-		CreatePos(T->rchild,T,p,1);
-	}
-
-}
 
 int Visit(TElemType e)
 {
@@ -101,177 +62,22 @@ int InOrderTraverse(BiTree T,int (*Visit)(TElemType e))
 	}
 }
 
-//***********给出了采用递归，对二叉树树进行操作的一般方法**********//
-void CountLeaf(BiTree T, int &count)
-	//先序遍历二叉树，以count返回二叉树中叶子结点的数目
-	//conut作为计数器，在传参时count在main中要清零
+int PreOrderTraverse(BiTree T,int (*Visit)(TElemType e))
+	//采用二叉链表存储结构，Visit是对数据元素操作的应用函数，
+	//先序遍历二叉树T的递归算法，对每个数据元素调用函数Visit。
 {
 	if(T)
 	{
-		if((!T->lchild) && (!T->rchild))	//既没有左子树也没有右子树
-			++count;						//对叶子结点计数
-		CountLeaf(T->lchild,count);
-		CountLeaf(T->rchild,count);
-	}
-}// CountLeaf
-
-int BiTreeDepth(BiTree T)
-{
-	int depth  , depthleft ,depthright ;
-	if(!T)
-	{
-		depth = 0;
-	}
-	else
-	{
-		depthleft  = BiTreeDepth(T->lchild);
-		depthright = BiTreeDepth(T->rchild);
-		depth = (depthleft > depthright ? depthleft : depthright) + 1;
-	}
-	return depth;
-}
-
-//---------------------
-#define QElemType BiTree
-
-//---单链队列——队列的链式存储结构(带头结点)---
-typedef struct QNode
-{
-	QElemType data;
-	struct QNode *next;
-}QNode, *QueuePtr;
-
-typedef struct
-{
-	QueuePtr front;	//队头指针
-	QueuePtr rear;	//队尾指针
-}LinkQueue;
-
-int InitQueue(LinkQueue &Q)	//带头结点的队列
-{
-	Q.front = Q.rear = (QueuePtr)malloc(sizeof(QNode));	//带头结点的队列
-	if(!Q.front)	//存储分配失败
-		exit(-1);
-	Q.front->next = NULL;
-	return 1;
-}
-
-int DestroyQueue(LinkQueue &Q)
-	//销毁队列Q
-{
-	while(Q.front)
-	{
-		Q.rear = Q.front->next;
-		free(Q.front);
-		Q.front = Q.rear;
-	}
-	return 1;
-}
-
-int EnQueue(LinkQueue &Q, QElemType e)
-	//插入元素e为Q的新的队尾元素
-{
-	QueuePtr p = (QueuePtr)malloc(sizeof(QNode));
-	if(!p)		//存储分配失败
-		exit(-1);
-	p->data = e;
-	p->next = NULL;
-	Q.rear->next = p;
-	Q.rear = p;
-	return 1;
-}
-
-int DeQueue(LinkQueue &Q, QElemType &e)
-	//若队列不空，则删除Q的对头元素，用e返回其值，并返回1
-	//否则返回0
-{
-	QueuePtr p;
-	if(Q.front == Q.rear)
+		if(Visit(T->data))
+			if(PreOrderTraverse(T->lchild,Visit))
+				if(PreOrderTraverse(T->rchild,Visit))
+					return 1;
 		return 0;
-	p = Q.front->next;
-	e = p->data;
-	Q.front->next = p->next;
-	if(Q.rear == p)
-		Q.rear = Q.front;
-	free(p);
-	return 1;
-}
-
-void PrintQueue(LinkQueue Q)
-{
-	QueuePtr p = Q.front->next;
-	printf("\n|");
-	while (p)
+	}else
 	{
-		printf(" %d ",p->data->data.key);
-		p = p->next;
+		return 1;
 	}
-	printf(" |\n");
 }
-
-//统计每层节点的个数 
-void countNumOfLevel(BiTree root,int depth, int &res)
-{
-    if(root==NULL||depth<0)
-        return;
-    if(depth==0){
-        res++;
-        return;
-    }    
-    countNumOfLevel(root->lchild,depth-1,res);
-    countNumOfLevel(root->rchild,depth-1,res);
-}
-
-void PrintSpace(int n)
-{
-	int i;
-	for(i = 0; i < n; i++)
-		printf(" ");
-}
-
-
-
-int LayerOrder(BiTree bt)   //层次遍历二叉树 成功遍历返回1 失败返回0
-{
-    LinkQueue Q;
-    BiTree p;
-	int i = 0,r = 1,depth = 1;
-    InitQueue(Q);
-    if(bt == NULL) return 0;
-    EnQueue(Q,bt);
-	//PrintQueue(Q);
-	while(Q.front != Q.rear)
-	{
-		if(DeQueue(Q,p));
-		{
-			++i;
-			printf("(%d, %d)",p->data.key,p->pos);
-			//PrintQueue(Q);
-		}
-		if(p->lchild)
-		{
-			EnQueue(Q,p->lchild);
-			//PrintQueue(Q);
-		}
-		if(p->rchild) 
-		{
-			EnQueue(Q,p->rchild);
-			//PrintQueue(Q);
-		}
-		
-		if(i == r)
-		{
-			printf("\n");
-			countNumOfLevel(bt,depth,r);
-			++depth;
-		}
-		
-	}
-    return 1;
-}
-
-
-//-----------
 
 
 
@@ -393,23 +199,41 @@ int DeleteBST(BiTree &T, KeyType key)
 			return DeleteBST(T->rchild, key);
 	}
 }
-
+KeyType arr[] = {45,2,90,37,24,40,53,50};
 
 int main(void)
 {
-	BiTree T,T1 = NULL, p = NULL;
+	BiTree T = NULL;
 	ElemType e;	e.key = 40;
-	int count = 0,depth,flag = 0;
-	CreateBiTree(T);
-	CreatePos(T,T,p,flag);
-	LayerOrder(T);
+	int count = 0,depth,flag = 0, i;
+
+	for (i = 0; i < 8; i++)
+	{
+		e.key = arr[i];
+		InsertBST(T, e);
+	}
+
+	printf("先序遍历:");
+	PreOrderTraverse(T,Visit);
+	printf("\n中序遍历:");
+	InOrderTraverse(T,Visit);
+	printf("\n");
+
 	printf("---------------------\n");
 	DeleteBST(T,37);
-	CreatePos(T,T,p,flag);
-	LayerOrder(T);
-	
-	
-
+	printf("先序遍历:");
+	PreOrderTraverse(T,Visit);
+	printf("\n中序遍历:");
+	InOrderTraverse(T,Visit);
+	printf("\n");
 
 	return 0;
 }
+/*
+先序遍历:45 2 37 24 40 90 53 50
+中序遍历:2 24 37 40 45 50 53 90
+---------------------
+先序遍历:45 2 24 40 90 53 50
+中序遍历:2 24 40 45 50 53 90
+请按任意键继续. . .
+*/
